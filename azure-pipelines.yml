@@ -1,0 +1,12 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'macos-latest'
+
+steps:
+- script: |
+    chmod +x gradlew
+- script: |
+    fastlane dev
+  displayName: 'Build android'

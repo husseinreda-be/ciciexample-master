@@ -1,0 +1,40 @@
+default_platform(:android)
+
+platform :android do
+  desc "Builds a dev env app and releases it to FAD"
+  lane :dev do
+    gradle(task: "clean")
+
+    gradle(
+      task: "assemble",
+      build_type: "Release"
+    )
+
+    firebase_app_distribution(
+      app: "firebase_app_id",
+      service_credentials_file: "fad.json", // Get this from Google Cloud console
+      release_notes_file: "release-notes.txt",
+      groups: "group_id" // Replace with your FAD group id
+    )
+  end
+
+  desc "Builds a prod env app and releases it to Play store internal testing"
+    lane :prod do
+      gradle(task: "clean")
+
+      gradle(
+        task: "bundle",
+        build_type: "Release"
+      )
+
+      upload_to_play_store(
+        track: 'internal'
+      )
+
+      slack(
+        message: "New Android release is available!\n\nprod " + version_name + "\n" + File.read("YOUR_RELEASENOTES.txt"),
+        slack_url: web_hook_url,
+        default_payloads: []
+      )
+    end
+end
